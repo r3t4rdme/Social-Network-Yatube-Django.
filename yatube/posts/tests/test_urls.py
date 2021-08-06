@@ -164,9 +164,9 @@ class PostURLTests(TestCase):
             reverse('add_comment', kwargs={
                 'username': f'{self.post_author.username}',
                 'post_id': f'{self.test_post.id}'
-            }),
-        )
+            })),
+        url = '/auth/login/?next=/'
         self.assertRedirects(
-            response, 
-            f"/auth/login/?next=/{self.post_author.username}/{self.test_post.id}/comment"
+            response,
+            f'{url}{self.post_author.username}/{self.test_post.id}/comment'
         )

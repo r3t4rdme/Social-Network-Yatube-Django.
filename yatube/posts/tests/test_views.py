@@ -171,15 +171,18 @@ class PostsViewTests(TestCase):
 
     def test_followers_post_placed_correctly(self):
         vasya_follow_leo = self.vasya_client.get(
-            (reverse('profile_follow', kwargs={'username': PostsViewTests.leo})))
-        leo_post = Post.objects.create(author=PostsViewTests.leo, text='post for vasya')
+            (reverse(
+                'profile_follow', kwargs={'username': PostsViewTests.leo})))
+        leo_post = Post.objects.create(
+            author=PostsViewTests.leo, text='post for vasya')
         response = self.vasya_client.get(
             reverse('follow_index'))
         response_post = response.context['page'][0].text
         self.assertEqual(
             vasya_follow_leo.status_code, 302, 'Подписки не происходит')
         self.assertEqual(
-            response_post, leo_post.text, f'Пост из подписок в ленте не появляется')
+            response_post,
+            leo_post.text, 'Пост из подписок в ленте не появляется')
 
     def test_index_cache_exist(self):
         """Главная страница корректно кэшируется"""

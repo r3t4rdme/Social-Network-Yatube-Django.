@@ -167,5 +167,6 @@ class PostURLTests(TestCase):
             }),
         )
         self.assertRedirects(
-            response, f"/auth/login/?next=/{self.post_author.username}/{self.test_post.id}/comment"
+            response, 
+            f"/auth/login/?next=/{self.post_author.username}/{self.test_post.id}/comment"
         )

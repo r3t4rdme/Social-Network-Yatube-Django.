@@ -4,7 +4,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from ..forms import PostForm
-from ..models import Follow, Group, Post
+from ..models import Group, Post
 
 User = get_user_model()
 
@@ -45,8 +45,6 @@ class PostsViewTests(TestCase):
         cls.author_client.force_login(cls.leo)
         cls.vasya_client = Client()
         cls.vasya_client.force_login(cls.Vasya)
-        vasya_follow_leo = cls.vasya_client.get(
-            (reverse('profile_follow', kwargs={'username': cls.leo})))
 
     def setUp(self):
         self.user = User.objects.create_user(username='peter')
@@ -175,10 +173,13 @@ class PostsViewTests(TestCase):
         vasya_follow_leo = self.vasya_client.get(
             (reverse('profile_follow', kwargs={'username': PostsViewTests.leo})))
         leo_post = Post.objects.create(author=PostsViewTests.leo, text='post for vasya')
-        response = self.vasya_client.get(reverse('follow_index'))
+        response = self.vasya_client.get(
+            reverse('follow_index'))
         response_post = response.context['page'][0].text
-        self.assertEqual(response_post, leo_post.text, f'Пост из подписок в ленте не появляется')
-
+        self.assertEqual(
+            vasya_follow_leo.status_code, 302, 'Подписки не происходит')
+        self.assertEqual(
+            response_post, leo_post.text, f'Пост из подписок в ленте не появляется')
 
     def test_index_cache_exist(self):
         """Главная страница корректно кэшируется"""

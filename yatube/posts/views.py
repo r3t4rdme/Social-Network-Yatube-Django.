@@ -12,6 +12,7 @@ from .models import Comment, Follow, Group, Post
 
 User = get_user_model()
 
+
 @require_GET
 def index(request):
     post_list = cache.get('index_page')

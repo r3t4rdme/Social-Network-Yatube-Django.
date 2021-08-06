@@ -126,11 +126,13 @@ class PostURLTests(TestCase):
 
     def test_non_author_post_edit_redirects_correctly(self):
         """Редирект не автора поста происходит правильно"""
-        response = self.authorized_non_author_client.get(
+        form_data = {
+            "text": "Тестовое создание поста"}
+        response = self.authorized_non_author_client.post(
             reverse('post_edit', kwargs={
                 'username': f'{self.post_author.username}',
                 'post_id': f'{self.test_post.id}'
-            }),
+            }), data=form_data, follow=True
         )
         self.assertRedirects(
             response, ('/author/2/'))
@@ -169,4 +171,4 @@ class PostURLTests(TestCase):
         url = 'auth/login/?next=/'
         self.assertRedirects(
             response,
-            f'/{url}{self.post_author.username}/{self.test_post.id}/comment')
+            f'/{url}{self.post_author.username}/{self.test_post.id}/comment/')

@@ -128,7 +128,7 @@ class PostURLTests(TestCase):
         """Редирект не автора поста происходит правильно"""
         form_data = {
             "text": "Тестовое создание поста"}
-        response = self.authorized_non_author_client.post(
+        response = self.authorized_non_author_client.get(
             reverse('post_edit', kwargs={
                 'username': f'{self.post_author.username}',
                 'post_id': f'{self.test_post.id}'

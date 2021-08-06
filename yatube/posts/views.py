@@ -113,7 +113,7 @@ def post_edit(request, username, post_id):
 
     return render(request, 'posts/new.html', {
         'form': form,
-        'action_name': action_name})
+        'action_name': action_name, 'post': post},)
 
 
 def page_not_found(request, exception):

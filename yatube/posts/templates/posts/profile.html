@@ -1,0 +1,67 @@
+{% extends 'misc/base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-md-3 mb-3 mt-1">
+      <div class="card">
+        <div class="card-body">
+          <div class="h2">
+            <!-- Имя автора -->
+            {{ username.get_full_name }}
+          </div>
+          <div class="h3 text-muted">
+            <!-- username автора -->
+            @{{ username.username }}
+          </div>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <div class="h6 text-muted">
+              Подписчиков: {{ followers }}  <br>
+              Подписан: {{ follows }}
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="h6 text-muted">
+              <!-- Количество записей -->
+            Количество записей: {{ post.count }}
+            </div>
+            {% if request.user != username %}
+            <li class="list-group-item">
+              {% if following %}
+                <a
+                  class="btn btn-lg btn-light"
+                  href="{% url 'profile_unfollow' username.username %}" role="button">
+                  Отписаться
+                </a>
+              {% else %}
+                <a
+                  class="btn btn-lg btn-primary"
+                  href="{% url 'profile_follow' username.username %}" role="button">
+                  Подписаться
+                </a>
+              {% endif %}
+            </li>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="container">
+        <!-- Вывод ленты записей -->
+        {% for post in page %}
+          <!-- Вот он, новый include! -->
+          {% include "posts/post_item.html" with post=post %}
+        {% endfor %}
+      </div>
+      {% include 'misc/paginator.html' %}
+      <!-- Конец блока с отдельным постом -->
+      <!-- Остальные посты -->
+      <!-- Здесь постраничная навигация паджинатора -->
+    </div>
+  </div>
+</main>
+{% endblock %}

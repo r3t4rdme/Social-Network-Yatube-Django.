@@ -1,0 +1,16 @@
+{% extends "misc/base.html" %}
+{% block title %}Последние обновления в подписках{% endblock %}
+{% block header %}Последние обновления в подписках{% endblock %}
+{% block content %}
+  <div class="container">
+
+    {% include "posts/menu.html" with index=True %}
+
+    {% for post in page %}
+      {% include "posts/post_item.html" with post=post %}
+    {% endfor %}
+
+    {% include "misc/paginator.html" with items=page paginator=paginator %}
+
+  </div>
+{% endblock %}

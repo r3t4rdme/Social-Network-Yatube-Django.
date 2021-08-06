@@ -1,0 +1,21 @@
+{% extends 'misc/base.html' %}
+{% load thumbnail %}
+
+{% block content %}
+<title>Записи сообщества {{ group.title }} | Yatube</title>
+</head>
+<body>
+  <h1>{{ group.title }}</h1>
+    <p>
+        {{ group.description }}
+    </p>
+
+    <div class="container">
+      <!-- Вывод ленты записей -->
+      {% for post in page %}
+        <!-- Вот он, новый include! -->
+        {% include "posts/post_item.html" with post=post %}
+      {% endfor %}
+    </div>
+{% include "misc/paginator.html" %}
+{% endblock %}

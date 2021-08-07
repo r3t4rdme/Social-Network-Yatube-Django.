@@ -114,7 +114,7 @@ class PostsViewTests(TestCase):
                 'username': PostsViewTests.leo
             }),
         )
-        response_objects = response.context.get('post')
+        response_objects = response.context.get('posts')
         for posts in response_objects:
             with self.subTest(posts=posts):
                 self.assertEqual(

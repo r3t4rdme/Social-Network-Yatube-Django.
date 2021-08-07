@@ -4,8 +4,8 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET
-
 from posts.forms import CommentForm, PostForm
+
 from yatube.settings import POSTS_PER_PAGE
 
 from .models import Comment, Follow, Group, Post
@@ -42,21 +42,18 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
-    username = get_object_or_404(User, username=username)
+    profile = get_object_or_404(User, username=username)
     user = request.user
-    post = Post.objects.filter(author=username).prefetch_related(
+    posts = Post.objects.filter(author=profile).prefetch_related(
         'author', 'group')
-    paginator = Paginator(post, POSTS_PER_PAGE)
+    paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     following = user.is_authenticated and (
-        Follow.objects.filter(user=user, author=username).exists())
-    followers = len(Follow.objects.filter(author=username))
-    follows = len(Follow.objects.filter(user=username))
+        Follow.objects.filter(user=user, author=profile).exists())
     return render(request, 'posts/profile.html', {
-        'username': username, 'page': page,
-        'post': post, 'following': following,
-        'followers': followers, 'follows': follows})
+        'profile': profile, 'page': page,
+        'posts': posts, 'following': following})
 
 
 def post_view(request, username, post_id):
@@ -76,16 +73,12 @@ def post_view(request, username, post_id):
 @login_required
 def new_post(request):
     action_name = 'Добавить запись'
-    if request.method == "POST":
-        form = PostForm(
-            request.POST or None,
-            files=request.FILES or None
-        )
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect('index')
+    form = PostForm(request.POST or None, files=request.FILES or None)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.save()
+        return redirect('index')
     else:
         form = PostForm()
     return render(request, 'posts/new.html', {
@@ -151,11 +144,7 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    authors = []
-    follows = Follow.objects.filter(user=request.user)
-    for query in follows:
-        authors.append(query.author)
-    posts = Post.objects.filter(author__in=authors)
+    posts = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -168,9 +157,7 @@ def profile_follow(request, username):
         author = get_object_or_404(User, username=username)
         user = request.user
         Follow.objects.get_or_create(author=author, user=user)
-        return redirect("profile", username=username)
-    else:
-        return redirect("profile", username=username)
+    return redirect("profile", username=username)
 
 
 @login_required

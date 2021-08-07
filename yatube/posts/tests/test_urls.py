@@ -1,8 +1,10 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls.base import reverse
 
-from ..models import Group, Post
+from ..models import Follow, Group, Post
 
 User = get_user_model()
 
@@ -76,20 +78,22 @@ class PostURLTests(TestCase):
             with self.subTest(adress=adress):
                 response = self.guest_client.get(adress)
                 self.assertEqual(
-                    response.status_code, 200, 'Адрес недоступен')
+                    response.status_code,
+                    HTTPStatus.OK.value, 'Адрес недоступен')
 
     def test_new_post_url_access(self):
         """Гостевой клиент переадресуется правильно"""
         response = self.guest_client.get('/new/')
         self.assertEqual(
-            response.status_code, 302,
+            response.status_code, HTTPStatus.FOUND.value,
             'Ошибка переадресации с гостевого клиента')
 
     def test_new_post_authorized_access(self):
         """Авторизованный клиент имеет доступ к странице нового поста"""
         response = self.authorized_client.get('/new/')
         self.assertEqual(
-            response.status_code, 200, 'Ошибка доступа авторизованого клиента')
+            response.status_code,
+            HTTPStatus.OK.value, 'Ошибка доступа авторизованого клиента')
 
     def test_post_author_access(self):
         """Доступ к редактированию поста имеет только автор"""
@@ -100,7 +104,8 @@ class PostURLTests(TestCase):
             }),
         )
         self.assertEqual(
-            response.status_code, 200, 'Автор поста не имеет доступа к посту')
+            response.status_code,
+            HTTPStatus.OK.value, 'Автор поста не имеет доступа к посту')
 
     def test_not_post_author_access(self):
         """Не автор не имеет доступа к редактированию поста"""
@@ -111,7 +116,8 @@ class PostURLTests(TestCase):
             }),
         )
         self.assertEqual(
-            response.status_code, 302, 'Не автор поста имеет доступ к посту')
+            response.status_code,
+            HTTPStatus.FOUND.value, 'Не автор поста имеет доступ к посту')
 
     def test_guest_client_access(self):
         """Гостевой клиент не имеет доступа к редактированию поста"""
@@ -122,7 +128,8 @@ class PostURLTests(TestCase):
             }),
         )
         self.assertEqual(
-            response.status_code, 302, 'Гостевой клиент имеет доступ к посту')
+            response.status_code,
+            HTTPStatus.FOUND.value, 'Гостевой клиент имеет доступ к посту')
 
     def test_non_author_post_edit_redirects_correctly(self):
         """Редирект не автора поста происходит правильно"""
@@ -143,22 +150,32 @@ class PostURLTests(TestCase):
             '/exhaust/'
         )
         self.assertEqual(
-            response.status_code, 404,
+            response.status_code, HTTPStatus.NOT_FOUND.value,
             'Несуществующая страница возвращает ошибочный код')
 
-    def test_user_can_follow_and_unfollow_someone(self):
+    def test_user_can_follow_someone(self):
         """Подписка и отписка пользователя происходят корректно"""
         response = self.authorized_client.get(
             (reverse('profile_follow', kwargs={'username': PostURLTests.leo})))
+        follow_created = Follow.objects.get(
+            user=self.post_author, author=PostURLTests.leo)
         self.assertEqual(
-            response.status_code, 302, 'Ошибка при попытке подписки'
+            response.status_code,
+            HTTPStatus.FOUND.value, 'Ошибка при попытке подписки'
         )
+        self.assertIsNotNone(follow_created, 'Подписка не создаётся в базе')
+
+    def test_user_can_unfollow_someone(self):
         response = self.authorized_client.get(
             (reverse('profile_unfollow', kwargs={
                 'username': PostURLTests.leo})))
+        follow_deleted = Follow.objects.filter(
+            user=self.post_author, author=PostURLTests.leo).exists()
         self.assertEqual(
-            response.status_code, 302, 'Ошибка при попытке отписки'
+            response.status_code,
+            HTTPStatus.FOUND.value, 'Ошибка при попытке отписки'
         )
+        self.assertFalse(follow_deleted, 'Подписка не удаляется из базы')
 
     def test_guest_user_cant_add_comment(self):
         """Комментировать посты может только залогиненный юзер"""

@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import Client, TestCase
@@ -179,7 +181,8 @@ class PostsViewTests(TestCase):
             reverse('follow_index'))
         response_post = response.context['page'][0].text
         self.assertEqual(
-            vasya_follow_leo.status_code, 302, 'Подписки не происходит')
+            vasya_follow_leo.status_code,
+            HTTPStatus.FOUND.value, 'Подписки не происходит')
         self.assertEqual(
             response_post,
             leo_post.text, 'Пост из подписок в ленте не появляется')

@@ -4,8 +4,8 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET
-from posts.forms import CommentForm, PostForm
 
+from posts.forms import CommentForm, PostForm
 from yatube.settings import POSTS_PER_PAGE
 
 from .models import Comment, Follow, Group, Post

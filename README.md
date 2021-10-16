@@ -1,3 +1,7 @@
-# hw04_tests
+Соц.сеть Yatube, проект на Django.
 
-[![CI](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw04_tests/actions/workflows/python-app.yml)
+Что сделано:
+- Регистрация новых пользователей
+- Создание новых постов (с возможностью размещать изображения)
+- Комментирование своих и чужих постов
+- Возможность подписки на других пользователей.
